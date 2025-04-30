@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>洪崖洞拼图游戏</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+    }
+    #puzzle-board {
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 2px;
+      background: #999;
+    }
+    .tile {
+      width: 100px;
+      height: 100px;
+      background-size: 300px 300px;
+      cursor: move;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>探索洪崖洞：拼图挑战</h1>
+  <p>把拼图块拖动到正确位置，完成挑战！</p>
+  <div id="puzzle-board"></div>
+  <p id="message" style="font-size: 18px; color: green;"></p>
+
+  <script>
+    const image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Hongyadong_2020.jpg/640px-Hongyadong_2020.jpg";
+    const board = document.getElementById("puzzle-board");
+    const message = document.getElementById("message");
+
+    const tiles = [];
+    for (let i = 0; i < 9; i++) {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.draggable = true;
+      tile.dataset.index = i;
+      const row = Math.floor(i / 3);
+      const col = i % 3;
+      tile.style.backgroundImage = `url(${image})`;
+      tile.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+      tiles.push(tile);
+    }
+
+    const shuffledTiles = [...tiles].sort(() => Math.random() - 0.5);
+    shuffledTiles.forEach(tile => board.appendChild(tile));
+
+    let dragged;
+    board.addEventListener("dragstart", e => {
+      if (e.target.classList.contains("tile")) {
+        dragged = e.target;
+      }
+    });
+
+    board.addEventListener("dragover", e => e.preventDefault());
+
+    board.addEventListener("drop", e => {
+      if (e.target.classList.contains("tile")) {
+        const draggedIndex = [...board.children].indexOf(dragged);
+        const targetIndex = [...board.children].indexOf(e.target);
+
+        if (dragged !== e.target) {
+          board.insertBefore(dragged, board.children[targetIndex]);
+          board.insertBefore(e.target, board.children[draggedIndex]);
+        }
+
+        const currentOrder = [...board.children].map(t => t.dataset.index);
+        const isCorrect = currentOrder.every((val, i) => val == i);
+        if (isCorrect) {
+          message.textContent = "🎉 成功拼出洪崖洞！";
+        } else {
+          message.textContent = "";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
